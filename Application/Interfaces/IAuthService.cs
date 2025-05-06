@@ -1,0 +1,16 @@
+﻿using Application.DTOs.User;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.Interfaces;
+
+public interface IAuthService
+{
+    Task<string?> RegisterAsync(RegisterUserDTO registerUserDTO);
+    Task<string?> LoginAsync(LoginUserDTO loginUserDTO);
+    Task<string?> GenerateResetPasswordTokenAsync(string email);
+    Task<bool> ResetPasswordAsync(string email, string token, string newPassword);
+}

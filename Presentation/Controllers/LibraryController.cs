@@ -1,0 +1,87 @@
+﻿using Application.DTOs.Library;
+using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Presentation.Controllers;
+[Authorize(Policy = "User")]
+[Route("api/[controller]")]
+[ApiController]
+public class LibraryController : ControllerBase
+{
+    private readonly ITokenInformationsServices _tokenInformationsServices;
+    private readonly ILibraryService _libraryService;
+    public LibraryController(ITokenInformationsServices tokenInformationsServices,
+        ILibraryService libraryService)
+    {
+        _tokenInformationsServices = tokenInformationsServices;
+        _libraryService = libraryService;
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        try
+        {
+            var userId = _tokenInformationsServices.GetUserId();
+
+            var libraryDTO = await _libraryService.GetLibraryByUserIdAsync(userId);
+            if (libraryDTO == null) 
+                return NoContent();
+
+            return Ok(libraryDTO);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("create")]
+    public async Task<IActionResult> Create()
+    {
+        try
+        {
+            var userId = _tokenInformationsServices.GetUserId();
+            var createLibraryDTO = new CreateLibraryDTO() { UserId = userId };
+            var libraryDTO = await _libraryService.CreateAsync(createLibraryDTO);
+
+            return Ok(libraryDTO);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+    [HttpDelete]
+    public async Task<IActionResult> Delete()
+    {
+        try
+        {
+            var userId = _tokenInformationsServices.GetUserId();
+            var delete = await _libraryService.DeleteAsync(userId);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("addGame")]
+    public async Task<IActionResult> AddGame([FromBody] AddGameLibraryDTO addGamesLibraryDTO)
+    {
+        try
+        {
+            var userId = _tokenInformationsServices.GetUserId();
+            var libraryDTO = await _libraryService.AddGamesLibraryAsync(userId, addGamesLibraryDTO);
+            return Ok(libraryDTO);
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+}
