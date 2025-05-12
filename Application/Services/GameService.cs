@@ -11,16 +11,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class GameService : IGameService
+public class GameService(IMapper _mapper, IUnitOfWork _unitOfWork) : IGameService
 {
-    private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
-    public GameService(IMapper mapper, IUnitOfWork unitOfWork)
-    {
-        _mapper = mapper;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<GameDTO> CreateAsync(CreateGameDTO createGameDTO)
     {
         try

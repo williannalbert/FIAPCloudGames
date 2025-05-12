@@ -10,10 +10,6 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
-public class PromotionRepository : Repository<Promotion>, IPromotionRepository
+public class PromotionRepository(AppDbContext _context) : Repository<Promotion>(_context), IPromotionRepository
 {
-    public PromotionRepository(AppDbContext context) : base(context)
-    {
-        
-    }
 }

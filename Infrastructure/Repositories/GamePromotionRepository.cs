@@ -9,10 +9,6 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
-public class GamePromotionRepository : Repository<GamePromotion>, IGamePromotionRepository
+public class GamePromotionRepository(AppDbContext context) : Repository<GamePromotion>(context), IGamePromotionRepository
 {
-    public GamePromotionRepository(AppDbContext context) : base(context)
-    {
-        
-    }
 }

@@ -11,13 +11,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
-public class GameRepository : Repository<Game>, IGameRepository
+public class GameRepository(AppDbContext _context) : Repository<Game>(_context), IGameRepository
 {
-    public GameRepository(AppDbContext context) : base(context)
-    {
-        
-    }
-
     public async Task<IEnumerable<Game>> GetAllCompleteAsync()
     {
         try

@@ -9,10 +9,6 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
-public class SaleRepository : Repository<Sale>, ISaleRepository
+public class SaleRepository(AppDbContext context) : Repository<Sale>(context), ISaleRepository
 {
-    public SaleRepository(AppDbContext context) : base(context)
-    {
-        
-    }
 }

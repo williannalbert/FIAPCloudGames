@@ -6,16 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace Presentation.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class GameController : Controller
+public class GameController(IGameService _gameService) : ControllerBase
 {
-    private readonly IGameService _gameService;
-    public GameController(IGameService gameService)
-    {
-        _gameService = gameService;
-    }
-    
+
     [HttpGet("{id:Guid}", Name = "GetGame")]
-    [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> Get(Guid id)
     {
         try
@@ -33,7 +27,6 @@ public class GameController : Controller
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,User")]
     public async Task<ActionResult<IEnumerable<GameDTO>>> GetAll()
     {
         try

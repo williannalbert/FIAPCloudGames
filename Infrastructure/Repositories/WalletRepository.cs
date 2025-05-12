@@ -10,14 +10,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
-public class WalletRepository : Repository<Wallet>, IWalletRepository
+public class WalletRepository(AppDbContext _context) : Repository<Wallet>(_context), IWalletRepository
 {
-    public WalletRepository(AppDbContext context) : base(context)
-    {
-        
-        
-    }
-
     public async Task<Wallet> GetByUserIdAsync(Guid userId)
     {
         try

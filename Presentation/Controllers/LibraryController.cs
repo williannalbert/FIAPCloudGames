@@ -8,17 +8,9 @@ namespace Presentation.Controllers;
 [Authorize(Policy = "User")]
 [Route("api/[controller]")]
 [ApiController]
-public class LibraryController : ControllerBase
+public class LibraryController(ITokenInformationsServices _tokenInformationsServices,
+    ILibraryService _libraryService) : ControllerBase
 {
-    private readonly ITokenInformationsServices _tokenInformationsServices;
-    private readonly ILibraryService _libraryService;
-    public LibraryController(ITokenInformationsServices tokenInformationsServices,
-        ILibraryService libraryService)
-    {
-        _tokenInformationsServices = tokenInformationsServices;
-        _libraryService = libraryService;
-    }
-    
     [HttpGet]
     public async Task<IActionResult> Get()
     {

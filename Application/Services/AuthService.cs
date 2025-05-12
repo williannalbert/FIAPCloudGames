@@ -1,4 +1,5 @@
-﻿using Application.DTOs.User;
+﻿using Application.DTOs.Library;
+using Application.DTOs.User;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -17,23 +18,14 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class AuthService : IAuthService
+public class AuthService(
+    UserManager<ApplicationUser> _userManager,
+    SignInManager<ApplicationUser> _signInManager,
+    IConfiguration _configuration,
+    AppDbContext _context,
+    ILibraryService _libraryService,
+    IWalletService _walletService) : IAuthService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly IConfiguration _configuration;
-    private readonly AppDbContext _context;
-    public AuthService(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        IConfiguration configuration,
-        AppDbContext context)
-    {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _configuration = configuration;
-        _context = context;
-    }
     public async Task<string?> LoginAsync(LoginUserDTO loginUserDTO)
     {
         try
@@ -84,6 +76,10 @@ public class AuthService : IAuthService
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            _ = await _libraryService.CreateAsync(new CreateLibraryDTO() { UserId = user.Id });
+
+            _ = await _walletService.CreateAsync(user.Id);
 
             return await GenerateToken(appUser);
         }

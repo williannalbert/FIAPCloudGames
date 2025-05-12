@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork(AppDbContext _context) : IUnitOfWork
 {
     public ILibraryRepository _libraryRepository;
     public IGameRepository _gameRepository;
@@ -17,11 +17,6 @@ public class UnitOfWork : IUnitOfWork
     public IGamePromotionRepository _gamePromotionRepository;
     public IWalletRepository _walletRepository;
     
-    public AppDbContext _context;
-    public UnitOfWork(AppDbContext context)
-    {
-        _context = context;
-    }
     public ILibraryRepository LibraryRepository
     {
         get

@@ -21,7 +21,6 @@ public static class UserSeeder
     {
         
         var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
-        var libraryService = scope.ServiceProvider.GetRequiredService<ILibraryService>();
         var tokenService = scope.ServiceProvider.GetRequiredService<ITokenInformationsServices>();
         var roleService = scope.ServiceProvider.GetRequiredService<IRoleService>();
 
@@ -45,7 +44,6 @@ public static class UserSeeder
             if(adm)
                 _ = await roleService.AddUserRoleAsync(userClaimsDTO.ApplicationUserId, "Admin");
 
-            _ = await libraryService.CreateAsync(new CreateLibraryDTO() { UserId = userClaimsDTO.UserId });
         }
     }
 }

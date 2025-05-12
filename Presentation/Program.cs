@@ -129,9 +129,9 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    //await RoleSeeder.SeedAsync(services);
-    //await UserSeeder.SeedAsync(services);
-    //await GameSeeder.SeedAsync(services);
+    await RoleSeeder.SeedAsync(services);
+    await UserSeeder.SeedAsync(services);
+    await GameSeeder.SeedAsync(services);
 }
 
 app.UseHttpsRedirection();

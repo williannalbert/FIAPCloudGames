@@ -12,18 +12,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class LibraryService : ILibraryService
+public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletService _walletService) : ILibraryService
 {
-    private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IWalletService _walletService;
-    public LibraryService(IMapper mapper, IUnitOfWork unitOfWork, IWalletService walletService)
-    {
-        _mapper = mapper;
-        _unitOfWork = unitOfWork;
-        _walletService = walletService;
-    }
-
     public async Task<LibraryDTO> CreateAsync(CreateLibraryDTO createLibraryDTO)
     {
         try

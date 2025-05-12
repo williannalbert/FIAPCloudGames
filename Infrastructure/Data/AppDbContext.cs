@@ -6,12 +6,8 @@ using System.Reflection.Emit;
 
 namespace Infrastructure.Data;
 
-public class AppDbContext : IdentityDbContext<ApplicationUser>
+public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<User> Users { get; set; }
     public DbSet<Library> Libraries { get; set; }
     public DbSet<Game> Games { get; set; }

@@ -11,15 +11,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class WalletService : IWalletService
+public class WalletService(IMapper _mapper, IUnitOfWork _unitOfWork) : IWalletService
 {
-    private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
-    public WalletService(IMapper mapper, IUnitOfWork unitOfWork)
-    {
-        _mapper = mapper;
-        _unitOfWork = unitOfWork;
-    }
     public async Task<WalletDTO> AddMoneyAsync(Guid userId, decimal value)
     {
         try

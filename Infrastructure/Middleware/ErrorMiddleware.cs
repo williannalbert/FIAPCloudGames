@@ -10,16 +10,8 @@ using System.Text.Json;
 
 namespace Infrastructure.Middleware;
 
-public class ErrorMiddleware
+public class ErrorMiddleware(RequestDelegate _next, ILogger<ErrorMiddleware> _logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ErrorMiddleware> _logger;
-
-    public ErrorMiddleware(RequestDelegate next, ILogger<ErrorMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
     public async Task InvokeAsync(HttpContext context)
     {
         try

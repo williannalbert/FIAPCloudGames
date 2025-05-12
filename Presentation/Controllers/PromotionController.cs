@@ -9,13 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Presentation.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class PromotionController : Controller
+public class PromotionController(IPromotionService _promotionService) : ControllerBase
 {
-	private readonly IPromotionService _promotionService;
-    public PromotionController(IPromotionService promotionService)
-    {
-        _promotionService = promotionService;
-    }
     [HttpGet("{id:Guid}", Name = "GetPromotion")]
     [Authorize(Roles = "Admin,User")]
 

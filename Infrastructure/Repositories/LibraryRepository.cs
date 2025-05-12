@@ -10,12 +10,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
-public class LibraryRepository : Repository<Library>, ILibraryRepository
+public class LibraryRepository(AppDbContext _context) : Repository<Library>(_context), ILibraryRepository
 {
-    public LibraryRepository(AppDbContext context) : base(context)
-    {
-    }
-
     public async Task<Library?> GetLibraryByUserIdAsync(Guid userId)
     {
 

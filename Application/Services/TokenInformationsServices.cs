@@ -12,14 +12,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class TokenInformationsServices : ITokenInformationsServices
+public class TokenInformationsServices(IHttpContextAccessor _contextAccessor) : ITokenInformationsServices
 {
-    private readonly IHttpContextAccessor _contextAccessor;
-
-    public TokenInformationsServices(IHttpContextAccessor contextAccessor)
-    {
-        _contextAccessor = contextAccessor;
-    }
 
     public UserClaimsDTO GetUserClaims()
     {

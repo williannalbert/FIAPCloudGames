@@ -10,17 +10,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class RoleService : IRoleService
+public class RoleService(UserManager<ApplicationUser> _userManager, RoleManager<IdentityRole> _rolermanager) : IRoleService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-
-    private readonly RoleManager<IdentityRole> _rolermanager;
-
-    public RoleService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> rolermanager)
-    {
-        _userManager = userManager;
-        _rolermanager = rolermanager;
-    }
     public async Task<bool> AddUserRoleAsync(string userApplicationId, string roleName)
     {
         var user = await _userManager.FindByIdAsync(userApplicationId);

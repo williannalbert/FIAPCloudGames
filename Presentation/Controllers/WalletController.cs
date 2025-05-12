@@ -7,15 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Presentation.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class WalletController : Controller
+public class WalletController(IWalletService _walletService, ITokenInformationsServices _tokenInformationsServices) : ControllerBase
 {
-    private readonly ITokenInformationsServices _tokenInformationsServices;
-    private readonly IWalletService _walletService;
-    public WalletController(IWalletService walletService, ITokenInformationsServices tokenInformationsServices)
-    {
-        _walletService = walletService;
-        _tokenInformationsServices = tokenInformationsServices;
-    }
     [HttpGet]
     [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> Get()

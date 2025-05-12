@@ -13,16 +13,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class PromotionService : IPromotionService
+public class PromotionService(IMapper _mapper, IUnitOfWork _unitOfWork) : IPromotionService
 {
-    private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
-    public PromotionService(IMapper mapper, IUnitOfWork unitOfWork)
-    {
-        _mapper = mapper;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<GameDTO> AddGamePromotionAsync(GamePromotionDTO gamePromotionDTO)
     {
         try
