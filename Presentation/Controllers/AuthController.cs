@@ -42,6 +42,24 @@ public class AuthController(IAuthService _authService) : ControllerBase
         }
     }
 
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDTO refreshTokenRequestDTO)
+    {
+        try
+        {
+            AuthResponseDTO authResponseDTO = await _authService.RefreshTokenAsync(refreshTokenRequestDTO);
+            if (authResponseDTO == null)
+                return NotFound("Token expirado ou usuário não encontrado.");
+
+            return Ok(authResponseDTO);
+
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+
     [HttpPost("forgot-password")]   
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordUserDto forgotPasswordUserDto)
     {

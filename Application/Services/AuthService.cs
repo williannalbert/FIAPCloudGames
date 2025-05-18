@@ -190,19 +190,26 @@ public class AuthService(
         try
         {
             var principal = GetPrincipalFromExpiredToken(request.Token);
-            var userId = principal.FindFirst("userId")?.Value;
+            var userId = principal.FindFirst("applicationUserId")?.Value;
 
             if (string.IsNullOrEmpty(userId)) 
                 return null;
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null ||
                 user.RefreshToken != request.RefreshToken ||
-                user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                user.RefreshTokenExpiryTime <= DateTime.Now)
             {
                 return null;
             }
             var token = await GenerateToken(user);
+            var refreshToken = await SetRefreshTokenToUser(user);
+
+            return new AuthResponseDTO
+            {
+                Token = token,
+                RefreshToken = refreshToken
+            };
         }
         catch (Exception e)
         {
