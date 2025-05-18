@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Game;
+using Application.Exceptions;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -19,7 +20,7 @@ public class GameService(IMapper _mapper, IUnitOfWork _unitOfWork) : IGameServic
         {
             var gameExists = await _unitOfWork.GameRepository.GetAsync(g => g.Name.ToLower().Trim() == createGameDTO.Name.ToLower().Trim());
             if (gameExists is not null)
-                throw new Exception($"Já consta game cadastrado com esse nome: {createGameDTO.Name}");
+                throw new BusinessException($"Já consta game cadastrado com esse nome: {createGameDTO.Name}");
 
             var game = _mapper.Map<Game>(createGameDTO);
 
@@ -84,14 +85,14 @@ public class GameService(IMapper _mapper, IUnitOfWork _unitOfWork) : IGameServic
         {
             var game = await _unitOfWork.GameRepository.GetAsync(g => g.Id == updateGameDTO.Id);
             if (game is null)
-                throw new Exception("Game não localizado");
+                throw new NotFoundException("Game não localizado");
 
             var gameNameExists = await _unitOfWork.GameRepository.GetAsync(g => 
                 g.Name.ToLower().Trim() == updateGameDTO.Name.ToLower().Trim()
                 && g.Id != updateGameDTO.Id
             );
             if (gameNameExists is not null)
-                throw new Exception($"Já consta game cadastrado com esse nome: {updateGameDTO.Name}");
+                throw new BusinessException($"Já consta game cadastrado com esse nome: {updateGameDTO.Name}");
 
             _mapper.Map(updateGameDTO, game);
             _unitOfWork.GameRepository.Update(game);

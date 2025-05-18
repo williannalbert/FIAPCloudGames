@@ -11,5 +11,5 @@ public class AddGameLibraryDTO
 {
     [Required(ErrorMessage = "O campo {0} é obrigatório.")]
     public Guid GameId { get; set; }
-    public Guid? PromotionId { get; set; } = new();
+    public Guid? PromotionId { get; set; } = new Guid();
 }

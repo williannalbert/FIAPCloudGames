@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.User;
+using Application.Exceptions;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -28,11 +29,11 @@ public class AuthController(IAuthService _authService) : ControllerBase
     {
         try
         {
-            string token = await _authService.LoginAsync(loginUserDTO);
-            if (token == null)
+            AuthResponseDTO authResponseDTO = await _authService.LoginAsync(loginUserDTO);
+            if (authResponseDTO == null)
                 return NotFound("Usuário e senha inválidos.");
 
-            return Ok(new { token });
+            return Ok(authResponseDTO);
 
         }
         catch (Exception e)
@@ -65,7 +66,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
         {
             var success = await _authService.ResetPasswordAsync(ResetPasswordUserDto.Email, ResetPasswordUserDto.Token, ResetPasswordUserDto.NewPassword);
             if (!success)
-                throw new Exception("Falha ao redefinir a senha.");
+                throw new BusinessException("Falha ao redefinir a senha.");
 
             return Ok("Senha redefinida com sucesso.");
 

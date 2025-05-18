@@ -1,16 +1,18 @@
+using Application.BusinessRules;
+using Application.BusinessRules.Interfaces;
 using Application.Interfaces;
 using Application.Mappings;
 using Application.Services;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Identity;
-using Infrastructure.Middleware;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Presentation.Middleware;
 using Presentation.Seeders;
 using Serilog;
 using System.Text;
@@ -56,12 +58,12 @@ builder.Services.AddAuthentication(options =>
 
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateIssuer = true,
+        ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "",
-        ValidAudience = "",
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
@@ -101,6 +103,10 @@ builder.Services.AddScoped<IGamePromotionRepository, GamePromotionRepository>();
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+#endregion
+
+#region Rules
+builder.Services.AddScoped<IUserRules, UserRules>();
 
 #endregion
 #region Mappers

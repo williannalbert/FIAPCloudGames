@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.User;
+using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,7 @@ public class TokenInformationsServices(IHttpContextAccessor _contextAccessor) : 
         var httpClaims = _contextAccessor.HttpContext?.User?.Claims;
 
         if (!Guid.TryParse(httpClaims.FirstOrDefault(c => c.Type == "userId")?.Value, out var guid))
-            throw new Exception("Erro ao obter userId no token");
+            throw new BusinessException("Erro ao obter userId no token");
 
         var userClaims = new UserClaimsDTO()
         {
@@ -43,7 +44,7 @@ public class TokenInformationsServices(IHttpContextAccessor _contextAccessor) : 
             var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
 
             if (!Guid.TryParse(userIdClaim?.Value, out var guid))
-                throw new Exception("Erro ao obter userId no token");
+                throw new BusinessException("Erro ao obter userId no token");
 
             var userClaims = new UserClaimsDTO()
             {
@@ -56,7 +57,7 @@ public class TokenInformationsServices(IHttpContextAccessor _contextAccessor) : 
             return userClaims;
 
         }
-        throw new Exception("Token inválido");
+        throw new BusinessException("Token inválido");
     }
 
     public Guid GetUserId()
@@ -65,7 +66,7 @@ public class TokenInformationsServices(IHttpContextAccessor _contextAccessor) : 
         if (Guid.TryParse(userId, out var guid))
             return guid;
 
-        throw new Exception("Ero ao obter UserId");
+        throw new BusinessException("Ero ao obter UserId");
     }
 
     public Guid GetUserIdByToken(string token)
@@ -81,8 +82,8 @@ public class TokenInformationsServices(IHttpContextAccessor _contextAccessor) : 
             if (Guid.TryParse(userIdClaim?.Value, out var guid))
                 return guid;
 
-            throw new Exception("Ocorreu um erro ao obter userId");
+            throw new BusinessException("Ocorreu um erro ao obter userId");
         }
-        throw new Exception("Token inválido");
+        throw new BusinessException("Token inválido");
     }
 }

@@ -11,4 +11,6 @@ namespace Infrastructure.Identity;
 public class ApplicationUser : IdentityUser
 {
     public User User { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime RefreshTokenExpiryTime { get; set; }
 }

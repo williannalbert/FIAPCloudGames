@@ -1,4 +1,6 @@
-﻿using Application.DTOs.Library;
+﻿using Application.DTOs.GamePromotion;
+using Application.DTOs.Library;
+using Application.Exceptions;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -12,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletService _walletService) : ILibraryService
+public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletService _walletService, IGameService _gameService, IPromotionService _promotionService) : ILibraryService
 {
     public async Task<LibraryDTO> CreateAsync(CreateLibraryDTO createLibraryDTO)
     {
@@ -21,7 +23,7 @@ public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletSer
             var libraryUser = await _unitOfWork.LibraryRepository.GetLibraryByUserIdAsync(createLibraryDTO.UserId);
 
             if (libraryUser is not null)
-                throw new Exception("Usuário já possui Library cadastrada");
+                throw new BusinessException("Usuário já possui Library cadastrada");
 
             var library = _mapper.Map<Library>(createLibraryDTO);
 
@@ -46,7 +48,7 @@ public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletSer
                     return false;
 
             if (library.Sales.Count > 0)
-                throw new Exception("Library possui Games cadastrados. Não é possível realizar a exclusão");
+                throw new BusinessException("Library possui Games cadastrados. Não é possível realizar a exclusão");
 
             _unitOfWork.LibraryRepository.Delete(library);
             await _unitOfWork.CommitAsync();
@@ -81,16 +83,22 @@ public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletSer
         {
             var library = await _unitOfWork.LibraryRepository.GetAsync(l => l.User.Id == userId, l => l.Sales);
             if (library is null)
-                throw new Exception("Library não localizada");
+                throw new NotFoundException("Library não localizada");
 
-            var gameExist = library.Sales.Where(x => x.GameId == addGameLibraryDTO.GameId).FirstOrDefault();
+            var gameLibraryExist = library.Sales.Where(x => x.GameId == addGameLibraryDTO.GameId).FirstOrDefault();
 
 
-            if (gameExist is null)
+            if (gameLibraryExist is null)
             {
-                var game = await _unitOfWork.GameRepository.GetCompleteAsync(addGameLibraryDTO.GameId);
+                var game = await _gameService.GetAsync(addGameLibraryDTO.GameId);
 
-                var promotion = game.GamePromotions == null ? null : await _unitOfWork.PromotionRepository.GetAsync(p => p.Id == addGameLibraryDTO.PromotionId);
+                var promotionValid = await _promotionService.GetValidPromotionAsync(addGameLibraryDTO.PromotionId.GetValueOrDefault());
+                var promotionGame = await _promotionService.GetGamePromotionAsync(new GamePromotionDTO() { GameId = addGameLibraryDTO.GameId, PromotionId = addGameLibraryDTO.PromotionId.GetValueOrDefault() });
+
+                Promotion promotion = null;
+                if (promotionGame is not null && promotionGame is not null)
+                    promotion = await _unitOfWork.PromotionRepository.GetAsync(p => p.Id == addGameLibraryDTO.PromotionId);
+
 
                 if (game is not null)
                 {

@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Game;
+using Application.Exceptions;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,7 @@ public class GameController(IGameService _gameService) : ControllerBase
         try
         {
             if (createGameDTO == null)
-                return BadRequest("Dados inválidos");
+                throw new BusinessException("Dados inválidos");
 
             var newGameDTO = await _gameService.CreateAsync(createGameDTO);
 
@@ -85,7 +86,7 @@ public class GameController(IGameService _gameService) : ControllerBase
         try
         {
             if (id != updateGameDTO.Id)
-                throw new Exception("Ids de Game não correspondem");
+                throw new BusinessException("Ids de Game não correspondem");
 
             var updatedGameDTO = await _gameService.UpdateAsync(id, updateGameDTO);
             return Ok(updatedGameDTO);

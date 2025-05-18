@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Wallet;
+using Application.Exceptions;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -19,7 +20,7 @@ public class WalletService(IMapper _mapper, IUnitOfWork _unitOfWork) : IWalletSe
         {
             var wallet = await _unitOfWork.WalletRepository.GetByUserIdAsync(userId);
             if (wallet is null)
-                throw new Exception("Usuário não possui carteira cadastrada");
+                throw new NotFoundException("Usuário não possui carteira cadastrada");
 
             var walletDTO = _mapper.Map<WalletDTO>(wallet);
             walletDTO.Balance += value;
@@ -43,7 +44,7 @@ public class WalletService(IMapper _mapper, IUnitOfWork _unitOfWork) : IWalletSe
         {
             var wallet = await _unitOfWork.WalletRepository.GetByUserIdAsync(userId);
             if (wallet is not null)
-                throw new Exception("Usuário já possui carteira cadastrada");
+                throw new BusinessException("Usuário já possui carteira cadastrada");
 
             var newWallet = _mapper.Map<Wallet>(new CreateWalletDTO() { UserId = userId });
 
@@ -66,15 +67,15 @@ public class WalletService(IMapper _mapper, IUnitOfWork _unitOfWork) : IWalletSe
         {
             var wallet = await _unitOfWork.WalletRepository.GetByUserIdAsync(userId);
             if (wallet is null)
-                throw new Exception("Usuário não possui carteira cadastrada");
+                throw new NotFoundException("Usuário não possui carteira cadastrada");
 
             var walletDTO = _mapper.Map<WalletDTO>(wallet);
 
             if (walletDTO.Balance < 0)
-                throw new Exception("Carteira com saldo negativo");
+                throw new BusinessException("Carteira com saldo negativo");
 
             if ((walletDTO.Balance - value) < 0)
-                throw new Exception("Carteira não possui saldo suficiente para realizar operação");
+                throw new BusinessException("Carteira não possui saldo suficiente para realizar operação");
 
             walletDTO.Balance -= value;
 

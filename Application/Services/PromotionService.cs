@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.Game;
 using Application.DTOs.GamePromotion;
 using Application.DTOs.Promotion;
+using Application.Exceptions;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -13,35 +14,30 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class PromotionService(IMapper _mapper, IUnitOfWork _unitOfWork) : IPromotionService
+public class PromotionService(IMapper _mapper, IUnitOfWork _unitOfWork, IGameService _gameService) : IPromotionService
 {
     public async Task<GameDTO> AddGamePromotionAsync(GamePromotionDTO gamePromotionDTO)
     {
         try
         {
-            var game = await _unitOfWork.GameRepository.GetAsync(g => g.Id == gamePromotionDTO.GameId);
+            var game = await _gameService.GetAsync(gamePromotionDTO.GameId);
             if (game is null)
-                throw new Exception($"Jogo não foi localizado. Id: {gamePromotionDTO.GameId}");
+                throw new NotFoundException($"Jogo não foi localizado. Id: {gamePromotionDTO.GameId}");
 
-            var promotion = await _unitOfWork.PromotionRepository.GetAsync(p =>
-                p.Id == gamePromotionDTO.PromotionId
-                && p.Enable
-                && p.InitialDate < DateTime.Now
-                && p.FinalDate > DateTime.Now);
-
+            var promotion = await GetValidPromotionAsync(gamePromotionDTO.PromotionId);
             if (promotion is null)
-                throw new Exception($"Promoção não foi localizada. Id: {gamePromotionDTO.PromotionId}");
+                throw new NotFoundException($"Promoção não foi localizada. Id: {gamePromotionDTO.PromotionId}");
 
-            var gamepromotion = await _unitOfWork.GamePromotionRepository.GetAsync(g => g.PromotionId == gamePromotionDTO.PromotionId && g.GameId == gamePromotionDTO.GameId);
+            var gamepromotion = await GetGamePromotionAsync(gamePromotionDTO);
             if (gamepromotion is not null)
-                throw new Exception("Jogo já está com a promoção cadastrada");
+                throw new BusinessException("Jogo já está com a promoção cadastrada");
 
             var gamePromotion = _mapper.Map<GamePromotion>(gamePromotionDTO);
 
             await _unitOfWork.GamePromotionRepository.CreateAsync(gamePromotion);
             await _unitOfWork.CommitAsync();
 
-            var gameDiscount = await _unitOfWork.GameRepository.GetAsync(g => g.Id == gamePromotion.GameId);
+            var gameDiscount = await _gameService.GetAsync(gamePromotionDTO.GameId);
             return _mapper.Map<GameDTO>(gameDiscount);
         }
         catch (Exception e)
@@ -49,18 +45,17 @@ public class PromotionService(IMapper _mapper, IUnitOfWork _unitOfWork) : IPromo
             throw;
         }
     }
-
     public async Task<bool> DeleteGamePromotionAsync(GamePromotionDTO gamePromotionDTO)
     {
         try
         {
-            var game = await _unitOfWork.GameRepository.GetAsync(g => g.Id == gamePromotionDTO.GameId);
+            var game = await _gameService.GetAsync(gamePromotionDTO.GameId);
             if (game is null)
-                throw new Exception($"Jogo não foi localizado. Id: {gamePromotionDTO.GameId}");
+                throw new NotFoundException($"Jogo não foi localizado. Id: {gamePromotionDTO.GameId}");
 
             var promotion = await _unitOfWork.PromotionRepository.GetAsync(p => p.Id == gamePromotionDTO.PromotionId);
             if (promotion is null)
-                throw new Exception($"Promoção não foi localizada. Id: {gamePromotionDTO.PromotionId}");
+                throw new NotFoundException($"Promoção não foi localizada. Id: {gamePromotionDTO.PromotionId}");
 
             var gamepromotion = await _unitOfWork.GamePromotionRepository.GetAsync(g => g.PromotionId == gamePromotionDTO.PromotionId && g.GameId == gamePromotionDTO.GameId);
             if(gamepromotion is not null)
@@ -156,7 +151,7 @@ public class PromotionService(IMapper _mapper, IUnitOfWork _unitOfWork) : IPromo
         {
             var promotion = await _unitOfWork.PromotionRepository.GetAsync(p => p.Id == promotionDTO.Id);
             if(promotion is null)
-                throw new Exception("Promotion não localizada");
+                throw new NotFoundException("Promotion não localizada");
 
             _mapper.Map(promotionDTO, promotion);
             _unitOfWork.PromotionRepository.Update(promotion);
@@ -168,5 +163,46 @@ public class PromotionService(IMapper _mapper, IUnitOfWork _unitOfWork) : IPromo
         {
             throw;
         }    
+    }
+
+    public async Task<PromotionDTO> GetValidPromotionAsync(Guid promotionId)
+    {
+        try
+        {
+            var promotion = await _unitOfWork.PromotionRepository.GetAsync(p =>
+                p.Id == promotionId
+                && p.Enable
+                && p.InitialDate < DateTime.Now
+                && p.FinalDate > DateTime.Now);
+
+            if (promotion is null)
+                return null;
+
+            return _mapper.Map<PromotionDTO>(promotion);
+        }
+        catch (Exception e)
+        {
+
+            throw;
+        }
+    }
+
+    public async Task<GamePromotionDTO> GetGamePromotionAsync(GamePromotionDTO gamePromotionDTO)
+    {
+        try
+        {
+            var gamepromotion = await _unitOfWork.GamePromotionRepository.GetAsync(g => 
+                g.PromotionId == gamePromotionDTO.PromotionId && g.GameId == gamePromotionDTO.GameId);
+
+            if (gamepromotion is null)
+                return null;
+
+            return _mapper.Map<GamePromotionDTO>(gamepromotion);
+        }
+        catch (Exception e)
+        {
+
+            throw;
+        }
     }
 }

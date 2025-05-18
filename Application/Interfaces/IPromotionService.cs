@@ -13,6 +13,8 @@ public interface IPromotionService
 {
     Task<IEnumerable<PromotionDTO>> GetAllAsync();
     Task<PromotionDTO> GetAsync(Guid id);
+    Task<PromotionDTO> GetValidPromotionAsync(Guid id);
+    Task<GamePromotionDTO> GetGamePromotionAsync(GamePromotionDTO gamePromotionDTO);
     Task<PromotionDTO> CreateAsync(PromotionDTO promotionDTO);
     Task<PromotionDTO> UpdateAsync(Guid id, PromotionDTO promotionDTO);
     Task<bool> DeleteAsync(Guid id);

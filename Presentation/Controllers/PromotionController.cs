@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.Game;
 using Application.DTOs.GamePromotion;
 using Application.DTOs.Promotion;
+using Application.Exceptions;
 using Application.Interfaces;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,8 +13,6 @@ namespace Presentation.Controllers;
 public class PromotionController(IPromotionService _promotionService) : ControllerBase
 {
     [HttpGet("{id:Guid}", Name = "GetPromotion")]
-    [Authorize(Roles = "Admin,User")]
-
     public async Task<IActionResult> Get(Guid id)
     {
         try
@@ -31,7 +30,6 @@ public class PromotionController(IPromotionService _promotionService) : Controll
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,User")]
     public async Task<ActionResult<IEnumerable<PromotionDTO>>> GetAll()
     {
         try
@@ -56,7 +54,7 @@ public class PromotionController(IPromotionService _promotionService) : Controll
         try
         {
             if (promotionDTO == null)
-                throw new Exception("Dados inválidos");
+                throw new BusinessException("Dados inválidos");
 
             var newPromotionDTO = await _promotionService.CreateAsync(promotionDTO);
 
@@ -93,7 +91,7 @@ public class PromotionController(IPromotionService _promotionService) : Controll
         try
         {
             if(id != promotionDTO.Id)
-                throw new Exception("Ids de Promotion não correspondem");
+                throw new BusinessException("Ids de Promotion não correspondem");
 
             var promotionUpdatedDTO = await _promotionService.UpdateAsync(id, promotionDTO);
             return Ok(promotionUpdatedDTO);
