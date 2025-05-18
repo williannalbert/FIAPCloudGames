@@ -44,7 +44,7 @@ public class GameController(IGameService _gameService) : ControllerBase
     }
 
     [HttpPost("create")]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> Post([FromBody] CreateGameDTO createGameDTO)
     {
         try
@@ -63,7 +63,7 @@ public class GameController(IGameService _gameService) : ControllerBase
     }
 
     [HttpDelete("{id:Guid}")]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> Delete(Guid id)
     {
         try
@@ -80,7 +80,7 @@ public class GameController(IGameService _gameService) : ControllerBase
         }
     }
     [HttpPut("{id:Guid}")]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UpdateGameDTO>> Put(Guid id, UpdateGameDTO updateGameDTO)
     {
         try

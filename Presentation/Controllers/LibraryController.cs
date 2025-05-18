@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
-[Authorize(Policy = "User")]
 [Route("api/[controller]")]
 [ApiController]
 public class LibraryController(ITokenInformationsServices _tokenInformationsServices,
     ILibraryService _libraryService) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> Get()
     {
         try
@@ -31,6 +31,7 @@ public class LibraryController(ITokenInformationsServices _tokenInformationsServ
     }
 
     [HttpPost("create")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> Create()
     {
         try
@@ -47,6 +48,7 @@ public class LibraryController(ITokenInformationsServices _tokenInformationsServ
         }
     }
     [HttpDelete]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> Delete()
     {
         try
@@ -62,7 +64,8 @@ public class LibraryController(ITokenInformationsServices _tokenInformationsServ
         }
     }
 
-    [HttpPost("addGame")]
+    [HttpPost("add-game")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> AddGame([FromBody] AddGameLibraryDTO addGamesLibraryDTO)
     {
         try

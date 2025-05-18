@@ -16,6 +16,7 @@ public class UnitOfWork(AppDbContext _context) : IUnitOfWork
     public IPromotionRepository _promotionRepository;
     public IGamePromotionRepository _gamePromotionRepository;
     public IWalletRepository _walletRepository;
+    public IUserRepository _userRepository;
     
     public ILibraryRepository LibraryRepository
     {
@@ -60,6 +61,14 @@ public class UnitOfWork(AppDbContext _context) : IUnitOfWork
         get
         {
             return _walletRepository = _walletRepository ?? new WalletRepository(_context);
+        }
+    }
+
+    public IUserRepository UserRepository
+    {
+        get
+        {
+            return _userRepository = _userRepository ?? new UserRepository(_context);
         }
     }
     public async Task CommitAsync()

@@ -14,5 +14,6 @@ public interface IUnitOfWork
     IPromotionRepository PromotionRepository { get; }
     IGamePromotionRepository GamePromotionRepository{ get; }
     IWalletRepository WalletRepository { get; }
+    IUserRepository UserRepository { get; }
     Task CommitAsync();
 }

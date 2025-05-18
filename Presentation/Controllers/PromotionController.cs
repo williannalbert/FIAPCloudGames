@@ -48,7 +48,7 @@ public class PromotionController(IPromotionService _promotionService) : Controll
     }
 
     [HttpPost("create")]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PromotionDTO>> Post([FromBody] PromotionDTO promotionDTO)
     {
         try
@@ -67,7 +67,7 @@ public class PromotionController(IPromotionService _promotionService) : Controll
     }
 
     [HttpDelete("{id:Guid}")]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try
@@ -85,7 +85,7 @@ public class PromotionController(IPromotionService _promotionService) : Controll
     }
 
     [HttpPut("{id:Guid}")]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PromotionDTO>> Put(Guid id, PromotionDTO promotionDTO)
     {
         try
@@ -102,8 +102,8 @@ public class PromotionController(IPromotionService _promotionService) : Controll
             throw;
         }
     }
-    [HttpPost("addGame")]
-    [Authorize(Policy = "Admin")]
+    [HttpPost("add-game")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PromotionDTO>> AddGame([FromBody] GamePromotionDTO gamePromotionDTO)
     {
         try
@@ -120,9 +120,9 @@ public class PromotionController(IPromotionService _promotionService) : Controll
             throw;
         }
     }
-    [HttpPost("deleteGame")]
-    [Authorize(Policy = "Admin")]
-    public async Task<IActionResult> DeleteGame([FromBody] GamePromotionDTO gamePromotionDTO)
+    [HttpPost("delete-game")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteGamePromotion([FromBody] GamePromotionDTO gamePromotionDTO)
     {
         try
         {

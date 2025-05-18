@@ -92,6 +92,7 @@ builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IUserService, UserService>();
 #endregion
 
 #region Repositories
@@ -101,14 +102,15 @@ builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 builder.Services.AddScoped<IPromotionRepository, PromotionRepository>();
 builder.Services.AddScoped<IGamePromotionRepository, GamePromotionRepository>();
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 #endregion
 
 #region Rules
 builder.Services.AddScoped<IUserRules, UserRules>();
-
 #endregion
+
 #region Mappers
 builder.Services.AddAutoMapper(typeof(GameProfile));
 builder.Services.AddAutoMapper(typeof(LibraryProfile));
