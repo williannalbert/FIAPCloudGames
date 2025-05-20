@@ -14,5 +14,6 @@ public class PromotionProfile : Profile
     public PromotionProfile()
     {
         CreateMap<Promotion, PromotionDTO>().ReverseMap();
+        CreateMap<Promotion, CreatePromotionDTO>().ReverseMap();
     }
 }

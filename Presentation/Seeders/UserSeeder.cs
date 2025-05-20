@@ -39,7 +39,7 @@ public static class UserSeeder
                 Password = senha
             });
 
-            var userClaimsDTO = tokenService.GetUserClaimsByToken(newAdm);
+            var userClaimsDTO = tokenService.GetUserClaimsByToken(newAdm.Token);
             
             if(adm)
                 _ = await roleService.AddUserRoleAsync(userClaimsDTO.ApplicationUserId, "Admin");

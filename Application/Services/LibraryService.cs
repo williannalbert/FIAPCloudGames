@@ -83,7 +83,7 @@ public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletSer
         {
             var library = await _unitOfWork.LibraryRepository.GetAsync(l => l.User.Id == userId, l => l.Sales);
             if (library is null)
-                throw new NotFoundException("Library não localizada");
+                throw new BusinessException("Usuário não possui biblioteca cadastrada");
 
             var gameLibraryExist = library.Sales.Where(x => x.GameId == addGameLibraryDTO.GameId).FirstOrDefault();
 
@@ -91,6 +91,8 @@ public class LibraryService(IMapper _mapper, IUnitOfWork _unitOfWork, IWalletSer
             if (gameLibraryExist is null)
             {
                 var game = await _gameService.GetAsync(addGameLibraryDTO.GameId);
+                if (game is null)
+                    throw new NotFoundException("Jogo não localizado");
 
                 var promotionValid = await _promotionService.GetValidPromotionAsync(addGameLibraryDTO.PromotionId.GetValueOrDefault());
                 var promotionGame = await _promotionService.GetGamePromotionAsync(new GamePromotionDTO() { GameId = addGameLibraryDTO.GameId, PromotionId = addGameLibraryDTO.PromotionId.GetValueOrDefault() });

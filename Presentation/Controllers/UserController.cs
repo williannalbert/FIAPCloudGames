@@ -1,15 +1,24 @@
 ﻿using Application.DTOs.User;
 using Application.Exceptions;
 using Application.Interfaces;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
 [ApiController]
 [Authorize(Roles = "Admin")]
-[Route("api/admin/[controller]")]
-public class UserController(IUserService _userService) : ControllerBase
+[Route("api/[controller]/admin")]
+public class UserController(IUserService _userService, IAuthService _authService) : ControllerBase
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name=""></param>
+    /// <returns></returns>
+    /// <response code="200"></response>
+    /// <response code="404"></response>
+    /// <response code="500"></response>
     [HttpGet("{id:Guid}", Name = "GetUser")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -26,8 +35,15 @@ public class UserController(IUserService _userService) : ControllerBase
 			throw;
 		}
     }
-
-	[HttpGet]
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name=""></param>
+    /// <returns></returns>
+    /// <response code="200"></response>
+    /// <response code="404"></response>
+    /// <response code="500"></response>
+    [HttpGet]
 	public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
 	{
 		try
@@ -40,10 +56,16 @@ public class UserController(IUserService _userService) : ControllerBase
 		}
 		catch (Exception e)
 		{
-
 			throw;
 		}
 	}
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name=""></param>
+    /// <returns></returns>
+    /// <response code="200"></response>
+    /// <response code="500"></response>
     [HttpPut("{id:Guid}")]
     public async Task<ActionResult<UserDTO>> Put(Guid id, UpdateUserDTO updateUserDTO)
 	{
@@ -60,6 +82,13 @@ public class UserController(IUserService _userService) : ControllerBase
 			throw;
 		}
 	}
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name=""></param>
+    /// <returns></returns>
+    /// <response code="204"></response>
+    /// <response code="500"></response>
     [HttpDelete("{id:Guid}")]
 	public async Task<ActionResult> Delete(Guid id)
 	{
@@ -76,4 +105,24 @@ public class UserController(IUserService _userService) : ControllerBase
 			throw;
 		}
 	}
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name=""></param>
+    /// <returns></returns>
+    /// <response code="200"></response>
+    /// <response code="500"></response>
+    [HttpPost("change-email")]
+    public async Task<ActionResult> ChangeEmail([FromBody] ChangeEmailUserAdminDTO changeEmailUserAdminDTO)
+    {
+        try
+        {
+            var userDTO = await _authService.ChangeEmailAsync(changeEmailUserAdminDTO.ApplicationUserId, changeEmailUserAdminDTO.NewEmail);
+            return Ok(userDTO);
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
 }

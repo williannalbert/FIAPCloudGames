@@ -4,6 +4,8 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class UserService(IMapper _mapper, IUnitOfWork _unitOfWork) : IUserService
+public class UserService(IMapper _mapper, IUnitOfWork _unitOfWork, UserManager<ApplicationUser> _userManager) : IUserService
 {
     public async Task<bool> DeleteAsync(Guid userId)
     {
@@ -22,8 +24,18 @@ public class UserService(IMapper _mapper, IUnitOfWork _unitOfWork) : IUserServic
             if (user is null)
                 throw new NotFoundException("Usuário não localizado");
 
+            var applicationUser = await _userManager.FindByIdAsync(user.ApplicationUserId);
+            if (applicationUser is null)
+                throw new NotFoundException("Usuário não localizado");
+
             _unitOfWork.UserRepository.Delete(user);
+
             await _unitOfWork.CommitAsync();
+            var resultDelete = await _userManager.DeleteAsync(applicationUser);
+
+            if (!resultDelete.Succeeded)
+                throw new BusinessException("Ocorreu um erro ao excluir identificação do usuário");
+
             return true;
         }
         catch (Exception e)

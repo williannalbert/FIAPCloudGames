@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.User;
 
-public class UpdateUserDTO
+public class ChangeEmailUserAdminDTO
 {
     [Required(ErrorMessage = "O campo {0} é obrigatório.")]
-    public Guid Id { get; set; }
+    public string ApplicationUserId { get; set; }
+
     [Required(ErrorMessage = "O campo {0} é obrigatório.")]
-    public string Name { get; set; }
-    [Required(ErrorMessage = "O campo {0} é obrigatório.")]
-    public bool IsActive { get; set; }
+    [EmailAddress(ErrorMessage = "Formato do campo incorreto.")]
+    public string NewEmail { get; set; }
 }

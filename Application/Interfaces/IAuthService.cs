@@ -9,10 +9,10 @@ namespace Application.Interfaces;
 
 public interface IAuthService
 {
-    Task<string?> RegisterAsync(RegisterUserDTO registerUserDTO);
+    Task<AuthResponseDTO> RegisterAsync(RegisterUserDTO registerUserDTO);
     Task<AuthResponseDTO?> LoginAsync(LoginUserDTO loginUserDTO);
     Task<string> GenerateResetPasswordTokenAsync(string email);
     Task<bool> ResetPasswordAsync(string email, string token, string newPassword);
     Task<AuthResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO request);
-
+    Task<UserDTO> ChangeEmailAsync(string applicationUserId, string newEmail);
 }

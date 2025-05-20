@@ -74,11 +74,11 @@ public class PromotionService(IMapper _mapper, IUnitOfWork _unitOfWork, IGameSer
     }
 
 
-    public async Task<PromotionDTO> CreateAsync(PromotionDTO promotionDTO)
+    public async Task<PromotionDTO> CreateAsync(CreatePromotionDTO createPromotionDTO)
     {
         try
         {
-            var promotion = _mapper.Map<Promotion>(promotionDTO);
+            var promotion = _mapper.Map<Promotion>(createPromotionDTO);
 
             var newPromotion = await _unitOfWork.PromotionRepository.CreateAsync(promotion);
             await _unitOfWork.CommitAsync();

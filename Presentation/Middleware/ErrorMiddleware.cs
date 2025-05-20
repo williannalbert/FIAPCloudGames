@@ -1,4 +1,5 @@
-﻿using Application.Exceptions;
+﻿using Application.DTOs.Error;
+using Application.Exceptions;
 using System.Net;
 using System.Text.Json;
 
@@ -31,25 +32,25 @@ namespace Presentation.Middleware
             {
                 case NotFoundException notFoundEx:
                     statusCode = (int)HttpStatusCode.NotFound;
-                    response = new { error = notFoundEx.Message };
+                    response = new ErrorDTO { Error = notFoundEx.Message };
                     break;
 
                 case BusinessException businessEx:
                     statusCode = (int)HttpStatusCode.BadRequest;
-                    response = new { error = businessEx.Message };
+                    response = new ErrorDTO { Error = businessEx.Message };
                     break;
 
                 case UnauthorizedAccessException:
                     statusCode = (int)HttpStatusCode.Unauthorized;
-                    response = new { error = "Acesso não autorizado" };
+                    response = new ErrorDTO { Error = "Acesso não autorizado" };
                     break;
 
                 default:
                     statusCode = (int)HttpStatusCode.InternalServerError;
-                    response = new
+                    response = new ErrorDTO
                     {
-                        error = "Erro interno no servidor",
-                        details = "Tente novamente ou entre em contato com o suporte"
+                        Error = "Erro interno no servidor",
+                        Details = "Tente novamente ou entre em contato com o suporte"
                     };
                     break;
             }

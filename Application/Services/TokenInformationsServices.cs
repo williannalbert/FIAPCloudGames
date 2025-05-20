@@ -15,6 +15,31 @@ namespace Application.Services;
 
 public class TokenInformationsServices(IHttpContextAccessor _contextAccessor) : ITokenInformationsServices
 {
+    public string GetApplicationUserId()
+    {
+        var applicationUserId = _contextAccessor.HttpContext?.User?.Claims.FirstOrDefault(c => c.Type == "applicationUserId")?.Value;
+        return applicationUserId;
+
+        throw new BusinessException("Ero ao obter ApplicationUserId");
+    }
+
+    public string GetApplicationUserIdByToken(string token)
+    {
+        if (!string.IsNullOrEmpty(token))
+        {
+            var handler = new JwtSecurityTokenHandler();
+
+            var jwtToken = handler.ReadJwtToken(token);
+
+            var applicationUserIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "applicationUserId");
+
+            if (!string.IsNullOrEmpty(applicationUserIdClaim?.Value))
+                return applicationUserIdClaim?.Value;
+
+            throw new BusinessException("Ocorreu um erro ao obter applicationUserId");
+        }
+        throw new BusinessException("Token inválido");
+    }
 
     public UserClaimsDTO GetUserClaims()
     {

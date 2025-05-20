@@ -11,10 +11,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Presentation.Middleware;
 using Presentation.Seeders;
 using Serilog;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -41,7 +43,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
-
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<AppDbContext>()
@@ -123,7 +124,19 @@ builder.Services.AddAutoMapper(typeof(WalletProfile));
 
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Fiap Cloud Games API",
+        Version = "v1",
+        Description = "Documentação detalhada da API com códigos de retorno."
+    });
+});
 
 var app = builder.Build();
 

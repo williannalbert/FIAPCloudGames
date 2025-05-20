@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Wallet;
+namespace Application.DTOs.User;
 
-public class AddMoneyWalletDTO
+public class ChangeEmailUserDTO
 {
     [Required(ErrorMessage = "O campo {0} é obrigatório.")]
-    [Range(0,10000, ErrorMessage = "Valor mínimo: 0 | Valor máximo: 10000")]
-    public decimal Value { get; set; } = 0;
+    [EmailAddress(ErrorMessage = "Formato do campo incorreto.")]
+    public string NewEmail { get; set; }
 }

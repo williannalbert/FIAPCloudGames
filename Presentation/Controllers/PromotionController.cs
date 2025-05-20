@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Game;
+﻿using Application.DTOs.Error;
+using Application.DTOs.Game;
 using Application.DTOs.GamePromotion;
 using Application.DTOs.Promotion;
 using Application.Exceptions;
@@ -12,14 +13,25 @@ namespace Presentation.Controllers;
 [ApiController]
 public class PromotionController(IPromotionService _promotionService) : ControllerBase
 {
+    /// <summary>
+    /// Retorna promoção cadastrada na plataforma
+    /// </summary>
+    /// <param name="id">Id da promoção</param>
+    /// <returns>Promoção cadastrada</returns>
+    /// <response code="200">Promoção obtida com sucesso</response>
+    /// <response code="404">Promoção não localizada</response>
+    /// <response code="500">Erro não mapeado</response>
     [HttpGet("{id:Guid}", Name = "GetPromotion")]
+    [ProducesResponseType(typeof(PromotionDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Get(Guid id)
     {
         try
         {
             var promotionDTO = await _promotionService.GetAsync(id);
             if (promotionDTO == null)
-                return NotFound();
+                throw new NotFoundException("Promoção não localizada");
 
             return Ok(promotionDTO);
         }
@@ -28,16 +40,24 @@ public class PromotionController(IPromotionService _promotionService) : Controll
             throw;
         }
     }
-
+    /// <summary>
+    /// Retorna lista com todas as promoções cadastradas
+    /// </summary>
+    /// <returns>Promoções cadastradas</returns>
+    /// <response code="200">Lista com promoções obtida com sucesso</response>
+    /// <response code="404">Não há promoções cadastradas</response>
+    /// <response code="500">Erro não mapeado</response>
     [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<PromotionDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<PromotionDTO>>> GetAll()
     {
         try
         {
             var promotionListDTO = await _promotionService.GetAllAsync();
             if (promotionListDTO == null)
-                return NotFound();
-
+                throw new NotFoundException("Não há promoções cadastradas");
 
             return Ok(promotionListDTO);
         }
@@ -46,17 +66,29 @@ public class PromotionController(IPromotionService _promotionService) : Controll
             throw;
         }
     }
-
+    /// <summary>
+    /// Cadastrar nova promoção na plataforma
+    /// </summary>
+    /// <param name="promotionDTO">Objeto com informações de cadastro de promoção</param>
+    /// <returns>Promoção cadastrada</returns>
+    /// <response code="201">Promoção cadastrada com sucesso</response>
+    /// <response code="400">Erro ao cadastrar promoção</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro não mapeado</response>
     [HttpPost("create")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<PromotionDTO>> Post([FromBody] PromotionDTO promotionDTO)
+    [ProducesResponseType(typeof(PromotionDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PromotionDTO>> Post([FromBody] CreatePromotionDTO createPromotionDTO)
     {
         try
         {
-            if (promotionDTO == null)
+            if (createPromotionDTO == null)
                 throw new BusinessException("Dados inválidos");
 
-            var newPromotionDTO = await _promotionService.CreateAsync(promotionDTO);
+            var newPromotionDTO = await _promotionService.CreateAsync(createPromotionDTO);
 
             return new CreatedAtRouteResult("GetPromotion", new { id = newPromotionDTO.Id }, newPromotionDTO);
         }
@@ -65,27 +97,52 @@ public class PromotionController(IPromotionService _promotionService) : Controll
             throw;
         }
     }
-
+    /// <summary>
+    /// Exclusão de promoção cadastrada na plataforma
+    /// </summary>
+    /// <param name="id">Id da promoção</param>
+    /// <returns>Não há retorno</returns>
+    /// <response code="204">Exclusão realizada com sucesso</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Promoção não localizada</response>
+    /// <response code="500">Erro não mapeado</response>
     [HttpDelete("{id:Guid}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(Guid id)
     {
         try
         {
             var promotionDTO = await _promotionService.DeleteAsync(id);
             if (!promotionDTO)
-                return NotFound();
+                throw new NotFoundException("Promoção não localizada");
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            return BadRequest();
+            throw;
         }
     }
-
+    /// <summary>
+    /// Atualização de promoção na plataforma
+    /// </summary>
+    /// <param name="id">Id da promoção</param>
+    /// <param name="promotionDTO">Objeto com informações atualizadas da promoção</param>
+    /// <returns>Promoção atualizada</returns>
+    /// <response code="200">Promoção atualizada com sucesso</response>
+    /// <response code="400">Erro ao atualizar promoção</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="500">Erro não mapeado</response>
     [HttpPut("{id:Guid}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(PromotionDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<PromotionDTO>> Put(Guid id, PromotionDTO promotionDTO)
     {
         try
@@ -102,14 +159,29 @@ public class PromotionController(IPromotionService _promotionService) : Controll
             throw;
         }
     }
+    /// <summary>
+    /// Inclusão de promoção à um jogo
+    /// </summary>
+    /// <param name="gamePromotionDTO">Objeto com informação do jogo e da promoção</param>
+    /// <returns>Retorna promoção com os jogos correspondentes</returns>
+    /// <response code="201">Promoção adicionada ao jogo com sucesso</response>
+    /// <response code="400">Erro ao adicionar jogo à promoção</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Promoção ou Jogo não localizado</response>
+    /// <response code="500">Erro não mapeado</response>
     [HttpPost("add-game")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(PromotionDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<PromotionDTO>> AddGame([FromBody] GamePromotionDTO gamePromotionDTO)
     {
         try
         {
             if (gamePromotionDTO == null)
-                return BadRequest("Dados inválidos");
+                throw new BusinessException("Dados inválidos");
 
             var newPromotionDTO = await _promotionService.AddGamePromotionAsync(gamePromotionDTO);
 
@@ -120,18 +192,33 @@ public class PromotionController(IPromotionService _promotionService) : Controll
             throw;
         }
     }
+    /// <summary>
+    /// Retirar jogo de promoção
+    /// </summary>
+    /// <param name="gamePromotionDTO">Objeto com informações de jogo e promoção</param>
+    /// <returns></returns>
+    /// <response code="204">Jogo retirado de promoção com sucesso</response>
+    /// <response code="400">Erro ao adicionar jogo à promoção</response>
+    /// <response code="401">Usuário não autenticado</response>
+    /// <response code="404">Promoção ou Jogo não localizado</response>
+    /// <response code="500">Erro não mapeado</response>
     [HttpPost("delete-game")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(PromotionDTO), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorDTO), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteGamePromotion([FromBody] GamePromotionDTO gamePromotionDTO)
     {
         try
         {
             if (gamePromotionDTO == null)
-                return BadRequest("Dados inválidos");
+                throw new BusinessException("Dados inválidos");
 
             var deletedPromotion = await _promotionService.DeleteGamePromotionAsync(gamePromotionDTO);
-            if(!deletedPromotion)
-                return NotFound();
+            if (!deletedPromotion)
+                throw new BusinessException("Ocorreu um erro ao retirar jogo da promoção");
 
             return NoContent();
         }

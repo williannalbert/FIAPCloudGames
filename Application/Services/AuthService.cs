@@ -3,6 +3,7 @@ using Application.DTOs.Library;
 using Application.DTOs.User;
 using Application.Exceptions;
 using Application.Interfaces;
+using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.Identity;
@@ -28,7 +29,8 @@ public class AuthService(
     AppDbContext _context,
     ILibraryService _libraryService,
     IWalletService _walletService,
-    IUserRules _userRules) : IAuthService
+    IUserRules _userRules,
+    IMapper _mapper) : IAuthService
 {
     public async Task<AuthResponseDTO?> LoginAsync(LoginUserDTO loginUserDTO)
     {
@@ -57,7 +59,7 @@ public class AuthService(
         
     }
 
-    public async Task<string?> RegisterAsync(RegisterUserDTO registerUserDTO)
+    public async Task<AuthResponseDTO> RegisterAsync(RegisterUserDTO registerUserDTO)
     {
         try
         {
@@ -94,7 +96,13 @@ public class AuthService(
 
             _ = await _walletService.CreateAsync(user.Id);
 
-            return await GenerateToken(appUser);
+            string token = await GenerateToken(appUser);
+            string refreshToken = await SetRefreshTokenToUser(appUser);
+            return new AuthResponseDTO
+            {
+                Token = token,
+                RefreshToken = refreshToken
+            };
         }
         catch (Exception e)
         {
@@ -127,7 +135,6 @@ public class AuthService(
         {
             var userRoles = await _userManager.GetRolesAsync(user);
             var role = userRoles.FirstOrDefault() ?? "User";
-
 
             var claims = new[]
             {
@@ -240,5 +247,38 @@ public class AuthService(
         }
 
         return principal;
+    }
+
+    public async Task<UserDTO> ChangeEmailAsync(string applicationUserId, string newEmail)
+    {
+        try
+        {
+            var applicationUser = await _userManager.FindByIdAsync(applicationUserId);
+            if (applicationUser is null)
+                throw new NotFoundException("Usuário não encontrado.");
+
+            var emailExists = await _userManager.FindByEmailAsync(newEmail);
+            if (emailExists is not null && emailExists.Id != applicationUserId)
+                throw new BusinessException("Já consta usuário cadastrado com esse e-mail.");
+
+            var token = await _userManager.GenerateChangeEmailTokenAsync(applicationUser, newEmail);
+            var resultEmail = await _userManager.ChangeEmailAsync(applicationUser, newEmail, token);
+            if (!resultEmail.Succeeded)
+                throw new BusinessException("Ocorreu um erro ao alterar e-mail do usuário.");
+            var resultUserName = await _userManager.SetUserNameAsync(applicationUser, newEmail);
+            if (!resultUserName.Succeeded)
+                throw new BusinessException("Ocorreu um erro ao alterar username do usuário.");
+
+            var user = await _context.Users
+                .Include(u => u.Library)
+                .Include(u => u.Wallet)
+                .FirstOrDefaultAsync(x => x.ApplicationUserId == applicationUserId);
+
+            return _mapper.Map<UserDTO>(user);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 }
